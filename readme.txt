@@ -51,6 +51,9 @@ The thumbnails used in the widget are taken from the posts' featured images. In 
 
 == Changelog ==
 
+= 1.1.6 =
+* Fixed undefined variable warning when WP_DEBUG is enabled
+
 = 1.1.5 =
 * Automatically truncate long posts so widget doesn't become too large
 * Added "show_excerpt" parameter
