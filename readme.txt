@@ -29,7 +29,7 @@ Show the three latest posts from an external feed:
 The thumbnails used in the widget are taken from the posts’ featured images. In the event that a podcast does not have a featured image available, Message Flow will check the following locations for a suitable fallback image:
 
 1. A URL to the fallback image in the shortcode: `[message-flow fallback_image="http://example.com/default_image.png"]`
-2. If you’re using the [PowerPress](http://wordpress.org/extend/plugins/powerpress/) podcasting plugin, the default image will be taken from the iTunes image. PowerPress users can configure this in the "iTunes Feed Settings" section of PowerPress’ configuration. (/wp-admin/admin.php?page=powerpress/powerpressadmin_basic.php)
+2. If you’re using the [PowerPress](http://wordpress.org/extend/plugins/powerpress/) podcasting plugin, the default image will be taken from the iTunes image. PowerPress users can configure this in the "iTunes Feed Settings" section of PowerPress' configuration. (/wp-admin/admin.php?page=powerpress/powerpressadmin_basic.php)
 3. In your theme’s directory. Just make sure it’s 165 pixels square and named "unknown-album_165.png"
 
 == Installation ==
@@ -42,6 +42,9 @@ The thumbnails used in the widget are taken from the posts’ featured images. I
 2. The Message Flow widget will be placed wherever you put the shortcode
 
 == Changelog ==
+
+= 1.1.3 =
+* Fixed bug where post content would be inaccurate for some episodes within widget
 
 = 1.1.2 =
 * Fixed WP_DEBUG errors that appear when site has no podcast episodes

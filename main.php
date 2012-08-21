@@ -3,7 +3,7 @@
 Plugin Name: Message Flow
 Plugin URI: http://JoeAnzalone.com/plugins/message-flow
 Description: Provides a shortcode that generates a cover flow-like interface for all podcasts in a given category or feed: [message-flow category="11"]
-Version: 1.1.2
+Version: 1.1.3
 Author: Joe Anzalone
 Author URI: http://JoeAnzalone.com
 License: GPL2
@@ -114,6 +114,8 @@ class shmit_message_flow {
 			if(!empty($post->podcast_episode_url) OR (!$post->from_external_feed && !empty($enclosure))){
 				if(!empty($post->post_content)){
 					$podcast_episode_text_content = $post->post_content;
+				} else {
+					$podcast_episode_text_content = NULL;
 				}
 				
 				if(!empty($post->podcast_episode_url)){
@@ -155,9 +157,9 @@ class shmit_message_flow {
 				<div class="caption">'.$post->post_title.'</div>
 				</div>';
 				
-				if(!empty($podcast_episode_text_content)){
-					$podcast_episodes_text_contents[$post->ID] = $podcast_episode_text_content;
-				}				
+
+				$podcast_episodes_text_contents[$post->ID] = $podcast_episode_text_content;
+
 			}
 		}
 
