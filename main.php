@@ -3,7 +3,7 @@
 Plugin Name: Message Flow
 Plugin URI: http://JoeAnzalone.com/plugins/message-flow
 Description: Provides a shortcode that generates a cover flow-like interface for all podcasts in a given category or feed: [message-flow category="11"]
-Version: 1.1.1
+Version: 1.1.2
 Author: Joe Anzalone
 Author URI: http://JoeAnzalone.com
 License: GPL2
@@ -103,13 +103,18 @@ class shmit_message_flow {
 			<div class="loadIndicator"><div class="indicator"></div></div>
             <div class="flow">';
 	
+		if(empty($posts_array)){
+			return NULL;
+		}
 		foreach($posts_array as $post){
 			if(empty($post->from_external_feed)){
 				$post->from_external_feed = FALSE;
 			}
 			$enclosure = get_post_meta($post->ID, 'enclosure', TRUE);
 			if(!empty($post->podcast_episode_url) OR (!$post->from_external_feed && !empty($enclosure))){
-				$podcast_episode_text_content = $post->post_content;
+				if(!empty($post->post_content)){
+					$podcast_episode_text_content = $post->post_content;
+				}
 				
 				if(!empty($post->podcast_episode_url)){
 					$podcast_episode_url = $post->podcast_episode_url;
@@ -150,7 +155,9 @@ class shmit_message_flow {
 				<div class="caption">'.$post->post_title.'</div>
 				</div>';
 				
-				$podcast_episodes_text_contents[$post->ID] = $podcast_episode_text_content;
+				if(!empty($podcast_episode_text_content)){
+					$podcast_episodes_text_contents[$post->ID] = $podcast_episode_text_content;
+				}				
 			}
 		}
 
@@ -178,7 +185,10 @@ class shmit_message_flow {
 		}
 		
 		$html .= '<div class="current podcast-episode-text-content">';
-		$html .= $podcast_episode_text_content;
+		
+		if(!empty($podcast_episode_text_content)){
+			$html .= $podcast_episode_text_content;
+		}
 		
 		$html .= '</div>';
 		

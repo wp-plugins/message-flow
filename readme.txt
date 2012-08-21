@@ -16,7 +16,7 @@ Message Flow provides you with a shortcode you can use on your posts and pages t
 
 
 = Usage =
-Show the ten latest podcast episodes
+Show the ten latest podcast episodes:
 `[message-flow]`
 
 Show the five latest posts from category number 11:
@@ -42,6 +42,9 @@ The thumbnails used in the widget are taken from the posts’ featured images. I
 2. The Message Flow widget will be placed wherever you put the shortcode
 
 == Changelog ==
+
+= 1.1.2 =
+* Fixed WP_DEBUG errors that appear when site has no podcast episodes
 
 = 1.1.1 =
 * Fixed WP_DEBUG errors
