@@ -1,0 +1,46 @@
+.message-flow {
+background: #000;
+color: #fff;
+padding-top: 1em;
+}
+
+.message-flow .flow,
+body .ContentFlow .scrollbar .slider {
+cursor: url('../images/hand_open.png') 9 13, default;
+}
+
+.message-flow .flow:active,
+body .ContentFlow .scrollbar .slider:active {
+cursor: url('../images/hand_closed.png') 9 13, default;
+}
+
+body .ContentFlow .flow .item.active {
+cursor: url('../images/hand_point.png') 6 5, default;
+}
+
+.current.podcast-episode-text-content {
+margin: 1em;
+}
+
+.hidden.podcast-episode-text-content {
+display: none;
+}
+
+body .ContentFlow .flow .item.active canvas:hover,
+body .ContentFlow .flow .item.active canvas:focus {
+}
+
+.mejs-container {
+margin: 0 auto;
+}
+
+.now-playing {
+margin: 1em;
+text-align: center;
+color: #fff;
+}
+
+.now-playing .podcast-episode-title {
+margin: 0;
+color: #fff;
+}
