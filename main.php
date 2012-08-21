@@ -3,14 +3,14 @@
 Plugin Name: Message Flow
 Plugin URI: http://JoeAnzalone.com/plugins/message-flow
 Description: Provides a shortcode that generates a cover flow-like interface for all podcasts in a given category or feed: [message-flow category="11"]
-Version: 1.1
+Version: 1.1.1
 Author: Joe Anzalone
 Author URI: http://JoeAnzalone.com
 License: GPL2
 */
 ?>
 <?PHP
-	
+
 class shmit_message_flow {
 	
 	function head_scripts(){
@@ -24,11 +24,21 @@ class shmit_message_flow {
 		$items = $feed_object->data['child']['']['rss'][0]['child']['']['channel'][0]['child']['']['item'];
 		foreach($items as $k => $item){
 
-			$posts_array[$k]->podcast_episode_url = $item['child']['']['enclosure'][0]['attribs']['']['url'];
-			$posts_array[$k]->post_title = $item['child']['']['title'][0]['data'];
-			$posts_array[$k]->post_content = $item['child']['http://purl.org/rss/1.0/modules/content/']['encoded'][0]['data'];
+			if(!empty($item['child']['']['enclosure'][0]['attribs']['']['url'])){
+				$posts_array[$k]->podcast_episode_url = $item['child']['']['enclosure'][0]['attribs']['']['url'];
+			}
 			
-			$posts_array[$k]->thumbnail = $item['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['image'][0]['attribs']['']['href'];
+			if(!empty($item['child']['']['title'][0]['data'])){
+				$posts_array[$k]->post_title = $item['child']['']['title'][0]['data'];
+			}
+			
+			if(!empty($item['child']['http://purl.org/rss/1.0/modules/content/']['encoded'][0]['data'])){
+				$posts_array[$k]->post_content = $item['child']['http://purl.org/rss/1.0/modules/content/']['encoded'][0]['data'];
+			}
+			
+			if(!empty($item['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['image'][0]['attribs']['']['href'])){
+				$posts_array[$k]->thumbnail = $item['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['image'][0]['attribs']['']['href'];
+			}
 			
 			$posts_array[$k]->ID = $k;
 			$posts_array[$k]->from_external_feed = TRUE;
@@ -94,6 +104,9 @@ class shmit_message_flow {
             <div class="flow">';
 	
 		foreach($posts_array as $post){
+			if(empty($post->from_external_feed)){
+				$post->from_external_feed = FALSE;
+			}
 			$enclosure = get_post_meta($post->ID, 'enclosure', TRUE);
 			if(!empty($post->podcast_episode_url) OR (!$post->from_external_feed && !empty($enclosure))){
 				$podcast_episode_text_content = $post->post_content;
@@ -109,7 +122,11 @@ class shmit_message_flow {
 					$thumbnail = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), 'small', FALSE );
 					$thumbnail_src = $thumbnail[0];
 				} else {
-					$thumbnail_src = $post->thumbnail;
+					if(!empty($post->thumbnail)){
+						$thumbnail_src = $post->thumbnail;
+					} else {
+						$thumbnail_src = NULL;
+					}
 				}
 				
 				if(empty($thumbnail_src)){				
@@ -144,6 +161,8 @@ class shmit_message_flow {
 		
 		if(!empty($params['download_link_rel'])){
 			$download_link_rel = 'rel="'.$params['download_link_rel'].'" ';
+		} else {
+			$download_link_rel = NULL;
 		}
 		
 		$html .= '<div class="now-playing">
