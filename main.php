@@ -3,7 +3,7 @@
 Plugin Name: Message Flow
 Plugin URI: http://JoeAnzalone.com/plugins/message-flow
 Description: Provides a shortcode that generates a cover flow-like interface for all podcasts in a given category or feed: [message-flow category="11"]
-Version: 1.1.3
+Version: 1.1.4
 Author: Joe Anzalone
 Author URI: http://JoeAnzalone.com
 License: GPL2
@@ -12,6 +12,41 @@ License: GPL2
 <?PHP
 
 class shmit_message_flow {
+	
+	
+/*
+* Gets the excerpt of a specific post ID or object
+* @param - $post - object/int - the ID or object of the post to get the excerpt of
+* @param - $length - int - the length of the excerpt in words
+* @param - $tags - string - the allowed HTML tags. These will not be stripped out
+* @param - $extra - string - text to append to the end of the excerpt
+http://pippinsplugins.com/a-better-wordpress-excerpt-by-id-function/
+*/
+function get_excerpt_by_id($post, $length = 10, $tags = '<a><em><strong>', $extra = ' . . .') {
+ 
+	if(is_int($post)) {
+		// get the post object of the passed ID
+		$post = get_post($post);
+	} elseif(!is_object($post)) {
+		return false;
+	}
+ 
+	if(has_excerpt($post->ID)) {
+		$the_excerpt = $post->post_excerpt;
+		return apply_filters('the_content', $the_excerpt);
+	} else {
+		$the_excerpt = $post->post_content;
+	}
+ 
+	$the_excerpt = strip_shortcodes(strip_tags($the_excerpt), $tags);
+	$the_excerpt = preg_split('/\b/', $the_excerpt, $length * 2+1);
+	$excerpt_waste = array_pop($the_excerpt);
+	$the_excerpt = implode($the_excerpt);
+	$the_excerpt .= $extra;
+ 
+	return apply_filters('the_content', $the_excerpt);
+}
+	
 	
 	function head_scripts(){
 		echo '<link rel="stylesheet" href="'.$this->plugin_url.'/mediaelementjs/build/mediaelementplayer.min.css" />';
@@ -26,6 +61,10 @@ class shmit_message_flow {
 
 			if(!empty($item['child']['']['enclosure'][0]['attribs']['']['url'])){
 				$posts_array[$k]->podcast_episode_url = $item['child']['']['enclosure'][0]['attribs']['']['url'];
+			}
+			
+			if(!empty($item['child']['']['link'][0]['data'])){
+				$posts_array[$k]->permalink = $item['child']['']['link'][0]['data'];
 			}
 			
 			if(!empty($item['child']['']['title'][0]['data'])){
@@ -44,7 +83,7 @@ class shmit_message_flow {
 			$posts_array[$k]->from_external_feed = TRUE;
 		}
 
-		if(!$params['allow_silent']){
+		if($params['podcasts_only']){
 			foreach($posts_array as $i => $post){
 				if(empty($posts_array[$i]->podcast_episode_url)){
 					unset($posts_array[$i]);
@@ -59,20 +98,27 @@ class shmit_message_flow {
 	}
 	
 	function shortcode($params){
+		foreach($params as $k => $v){
+			if(strtolower(trim($v)) == 'false'){
+				$params[$k] = FALSE;
+			}
+		}
 		
 		$default_params = array(
 			'numberposts' => 10,
 			'category' => '',
-			'allow_silent' => FALSE,
+			'podcasts_only' => FALSE,
 			'download_link_rel' => NULL,
+			'permalink_link_rel' => NULL,
+			'order' => 'DESC',
 		);
 		
 		foreach($default_params as $k => $v){
-			if(empty($params[$k])){
+			if(!isset($params[$k])){
 				$params[$k] = $v;
 			}
 		}
-	
+
 		if(!empty($params['feed'])){
 			$from_external_feed = TRUE;
 			$posts_array = $this->get_posts_from_feed($params);
@@ -82,15 +128,16 @@ class shmit_message_flow {
 				'numberposts' => $params['numberposts'],
 				'category' => $params['category'],
 				'orderby' => 'post_date',
-				'order' => 'ASC',
+				'order' => $params['order'],
 			);
 		
-			if(!$params['allow_silent']){
+			if($params['podcasts_only']){
 				$get_posts_args['meta_key'] = 'enclosure';
 			}
 			
 			$from_external_feed = FALSE;
 			$posts_array = get_posts($get_posts_args);
+			$posts_array = array_reverse($posts_array);
 		}
 		
 		$html = '';
@@ -111,12 +158,14 @@ class shmit_message_flow {
 				$post->from_external_feed = FALSE;
 			}
 			$enclosure = get_post_meta($post->ID, 'enclosure', TRUE);
-			if(!empty($post->podcast_episode_url) OR (!$post->from_external_feed && !empty($enclosure))){
+			if(!$params['podcasts_only'] OR !empty($post->podcast_episode_url) OR (!$post->from_external_feed && !empty($enclosure))){
 				if(!empty($post->post_content)){
-					$podcast_episode_text_content = $post->post_content;
+					//$podcast_episode_text_content = $post->post_content;
+					$podcast_episode_text_content = $this->get_excerpt_by_id($post);
 				} else {
 					$podcast_episode_text_content = NULL;
 				}
+			
 				
 				if(!empty($post->podcast_episode_url)){
 					$podcast_episode_url = $post->podcast_episode_url;
@@ -124,6 +173,14 @@ class shmit_message_flow {
 					$enclosure_matches = preg_split('#\r\n|\r|\n#', $enclosure, 2);
 					$podcast_episode_url = $enclosure_matches[0];
 				}
+				
+				if( $from_external_feed ){
+					$post_permalink = $post->permalink;
+				} else {
+					$post->permalink = get_permalink($post->ID);
+					$post_permalink = $post->permalink;
+				}
+				
 				
 				if(!$from_external_feed){
 					$thumbnail = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), 'small', FALSE );
@@ -153,7 +210,7 @@ class shmit_message_flow {
 				}
 				
 				$html .= '<div class="item">
-				<img data-episode-id="'.$post->ID.'" data-podcast-episode-title="'.$post->post_title.'" data-podcast-episode-url="'. $podcast_episode_url . '" class="content" src="'.$thumbnail_src.'"/>
+				<img data-episode-id="'.$post->ID.'" data-podcast-episode-title="'.$post->post_title.'" data-podcast-episode-url="'. $podcast_episode_url . '" data-post-permalink="'.$post_permalink.'" class="content" src="'.$thumbnail_src.'"/>
 				<div class="caption">'.$post->post_title.'</div>
 				</div>';
 				
@@ -168,17 +225,37 @@ class shmit_message_flow {
             <div class="scrollbar"><div class="slider"><div class="position"></div></div></div>
 			</div>';
 		
+		if(!empty($params['permalink_link_rel'])){
+			$permalink_link_rel = 'rel="'.$params['permalink_link_rel'].'" ';
+		} else {
+			$permalink_link_rel = NULL;
+		}
+		
 		if(!empty($params['download_link_rel'])){
 			$download_link_rel = 'rel="'.$params['download_link_rel'].'" ';
 		} else {
 			$download_link_rel = NULL;
 		}
 		
-		$html .= '<div class="now-playing">
-		Now playing:
-		<h2 class="podcast-episode-title">'. $post->post_title .'</h2>
-		<div class="download">[<a '.$download_link_rel.'href="'.$podcast_episode_url.'">Download as MP3</a>]</div>
-		</div>';
+		$html .= '<div class="now-playing">';
+		//$html .= '<span class="now-playing-label">Now playing:</span>';
+		
+		if(!empty($post_permalink)){
+			$html .= '<a '.$permalink_link_rel.'class="post-permalink" '.$permalink_link_rel.'href="'.$post_permalink.'">';
+		}		
+		
+		$html .= '<h2 class="podcast-episode-title">'. $post->post_title .'</h2>';
+		
+		if(!empty($post_permalink)){
+			$html .= '</a>';
+		}
+
+		
+		if(!empty($podcast_episode_url)){
+			$html .= '<div class="download">[<a '.$download_link_rel.'href="'.$podcast_episode_url.'">Download as MP3</a>]</div>';
+		}
+		
+		$html .= '</div>';
 		
 		if(!empty($podcast_episode_url)){
 			$html .= '<audio class="podcast_player" src="'. $podcast_episode_url .'" controls="controls">';

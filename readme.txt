@@ -8,16 +8,21 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Message Flow generates a CoverFlow-like interface for your podcast episodes.
+Message Flow generates a CoverFlow-like interface for your blog posts.
 
 == Description ==
 
-Message Flow provides you with a shortcode you can use on your posts and pages to display your podcasts (either driven by [PowerPress](http://wordpress.org/extend/plugins/powerpress/) or an external RSS feed) in a JavaScript widget powered by [ContentFlow](http://www.jacksasylum.eu/ContentFlow/).
+Message Flow provides you with a shortcode you can use on your posts and pages to display your posts in a JavaScript widget powered by [ContentFlow](http://www.jacksasylum.eu/ContentFlow/).
+
+It even supports podcast integration with [PowerPress](http://wordpress.org/extend/plugins/powerpress/) and external podcast feeds.
 
 
 = Usage =
-Show the ten latest podcast episodes:
+Show the ten latest posts:
 `[message-flow]`
+
+Show the ten latest podcast episodes:
+`[message-flow podcasts_only="true"]`
 
 Show the five latest posts from category number 11:
 `[message-flow numberposts="5" category="11"]`
@@ -42,6 +47,10 @@ The thumbnails used in the widget are taken from the posts' featured images. In 
 2. The Message Flow widget will be placed wherever you put the shortcode
 
 == Changelog ==
+
+= 1.1.4 =
+* Added support for regular posts that lack an associated podcast episode
+* Added "podcasts_only" parameter: `[message-flow podcasts_only="true"]`
 
 = 1.1.3 =
 * Fixed bug where post content would be inaccurate for some episodes within widget
