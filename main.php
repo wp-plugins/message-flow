@@ -3,7 +3,7 @@
 Plugin Name: Message Flow
 Plugin URI: http://JoeAnzalone.com/plugins/message-flow
 Description: Provides a shortcode that generates a cover flow-like interface for all podcasts in a given category or feed: [message-flow category="11"]
-Version: 1.1.4
+Version: 1.1.5
 Author: Joe Anzalone
 Author URI: http://JoeAnzalone.com
 License: GPL2
@@ -38,7 +38,7 @@ function get_excerpt_by_id($post, $length = 10, $tags = '<a><em><strong>', $extr
 		$the_excerpt = $post->post_content;
 	}
  
-	$the_excerpt = strip_shortcodes(strip_tags($the_excerpt), $tags);
+	$the_excerpt = strip_shortcodes( strip_tags($the_excerpt, $tags) );
 	$the_excerpt = preg_split('/\b/', $the_excerpt, $length * 2+1);
 	$excerpt_waste = array_pop($the_excerpt);
 	$the_excerpt = implode($the_excerpt);
@@ -98,18 +98,21 @@ function get_excerpt_by_id($post, $length = 10, $tags = '<a><em><strong>', $extr
 	}
 	
 	function shortcode($params){
-		foreach($params as $k => $v){
-			if(strtolower(trim($v)) == 'false'){
-				$params[$k] = FALSE;
+	
+		if(is_array($params)){
+			foreach($params as $k => $v){
+				if(strtolower(trim($v)) == 'false'){
+					$params[$k] = FALSE;
+				}
 			}
 		}
-		
 		$default_params = array(
 			'numberposts' => 10,
 			'category' => '',
 			'podcasts_only' => FALSE,
 			'download_link_rel' => NULL,
 			'permalink_link_rel' => NULL,
+			'show_excerpt' => TRUE,
 			'order' => 'DESC',
 		);
 		
@@ -159,9 +162,25 @@ function get_excerpt_by_id($post, $length = 10, $tags = '<a><em><strong>', $extr
 			}
 			$enclosure = get_post_meta($post->ID, 'enclosure', TRUE);
 			if(!$params['podcasts_only'] OR !empty($post->podcast_episode_url) OR (!$post->from_external_feed && !empty($enclosure))){
+			
+				if( !$from_external_feed ){
+					$post->permalink = get_permalink($post->ID);
+				}					
+				$post_permalink = $post->permalink;
+			
 				if(!empty($post->post_content)){
 					//$podcast_episode_text_content = $post->post_content;
-					$podcast_episode_text_content = $this->get_excerpt_by_id($post);
+					$allowed_tags = '<a><em><strong>';
+					$post->post_content = trim( strip_tags($post->post_content, $allowed_tags) );
+					if($params['show_excerpt']){
+						$excerpt = trim( $this->get_excerpt_by_id($post, 10, $allowed_tags, ' ') );
+						$podcast_episode_text_content = $excerpt;
+						
+						
+						if($excerpt != $post->post_content){
+							$podcast_episode_text_content .= '<div class="read-more"><a href="'.$post_permalink.'">Continue reading...</a></div>';
+						}
+					}
 				} else {
 					$podcast_episode_text_content = NULL;
 				}
@@ -172,13 +191,6 @@ function get_excerpt_by_id($post, $length = 10, $tags = '<a><em><strong>', $extr
 				} else {
 					$enclosure_matches = preg_split('#\r\n|\r|\n#', $enclosure, 2);
 					$podcast_episode_url = $enclosure_matches[0];
-				}
-				
-				if( $from_external_feed ){
-					$post_permalink = $post->permalink;
-				} else {
-					$post->permalink = get_permalink($post->ID);
-					$post_permalink = $post->permalink;
 				}
 				
 				

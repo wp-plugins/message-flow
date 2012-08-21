@@ -30,6 +30,9 @@ Show the five latest posts from category number 11:
 Show the three latest posts from an external feed:
 `[message-flow numberposts="3" feed="http://example.com/feed.rss"]`
 
+Disable excerpts:
+`[message-flow show_excerpt="false"]`
+
 = Defining the thumbnails (Album Art) =
 The thumbnails used in the widget are taken from the posts' featured images. In the event that a podcast does not have a featured image available, Message Flow will check the following locations for a suitable fallback image:
 
@@ -47,6 +50,11 @@ The thumbnails used in the widget are taken from the posts' featured images. In 
 2. The Message Flow widget will be placed wherever you put the shortcode
 
 == Changelog ==
+
+= 1.1.5 =
+* Automatically truncate long posts so widget doesn't become too large
+* Added "show_excerpt" parameter
+* Fixed "Invalid argument supplied" warning
 
 = 1.1.4 =
 * Added support for regular posts that lack an associated podcast episode
