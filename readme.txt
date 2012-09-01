@@ -1,5 +1,5 @@
 === Message Flow ===
-Contributors: Captin Shmit
+Contributors: Joe Anzalone
 Donate link: http://JoeAnzalone.com
 Tags: cover-flow, podcast, rss, syndication
 Requires at least: 2.0.2
@@ -42,8 +42,7 @@ The thumbnails used in the widget are taken from the posts' featured images. In 
 
 == Installation ==
 
-1. Upload message-flow.zip via the "Install Plugins" panel (/wp-admin/plugin-install.php)
-2. Insert the shortcode into a post or page: `[message-flow numberposts="5" category="11"]`
+Extract the zip file and drop the contents in the wp-content/plugins/ directory of your WordPress installation and then activate the plugin from the "Plugins" page.
 
 == Screenshots ==
 1. Simply add the shortcode to your post or page
