@@ -3,7 +3,7 @@
 Plugin Name: Message Flow
 Plugin URI: http://JoeAnzalone.com/plugins/message-flow
 Description: Provides a shortcode that generates a cover flow-like interface for all podcasts in a given category or feed: [message-flow category="11"]
-Version: 1.1.6
+Version: 1.1.7
 Author: Joe Anzalone
 Author URI: http://JoeAnzalone.com
 License: GPL2
@@ -113,6 +113,8 @@ function get_excerpt_by_id($post, $length = 10, $tags = '<a><em><strong>', $extr
 			'download_link_rel' => NULL,
 			'permalink_link_rel' => NULL,
 			'show_excerpt' => TRUE,
+			'excerpt_length' => 10,
+			'readmore_text' => 'Continue reading...',
 			'order' => 'DESC',
 		);
 		
@@ -174,12 +176,12 @@ function get_excerpt_by_id($post, $length = 10, $tags = '<a><em><strong>', $extr
 					$allowed_tags = '<a><em><strong>';
 					$post->post_content = trim( strip_tags($post->post_content, $allowed_tags) );
 					if($params['show_excerpt']){
-						$excerpt = trim( $this->get_excerpt_by_id($post, 10, $allowed_tags, ' ') );
+						$excerpt = trim( $this->get_excerpt_by_id($post, $params['excerpt_length'], $allowed_tags, ' ') );
 						$podcast_episode_text_content = $excerpt;
 						
 						
 						if($excerpt != $post->post_content){
-							$podcast_episode_text_content .= '<div class="read-more"><a href="'.$post_permalink.'">Continue reading...</a></div>';
+							$podcast_episode_text_content .= '<div class="read-more"><a href="'.$post_permalink.'">'.$params['readmore_text'].'</a></div>';
 						}
 					}
 				}

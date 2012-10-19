@@ -33,6 +33,9 @@ Show the three latest posts from an external feed:
 Disable excerpts:
 `[message-flow show_excerpt="false"]`
 
+Default parameters:
+`[message-flow numberposts="10" category="" podcasts_only="FALSE" download_link_rel="" permalink_link_rel="" show_excerpt="TRUE" excerpt_length="10" readmore_text="Continue reading..." order="DESC"]`
+
 = Defining the thumbnails (Album Art) =
 The thumbnails used in the widget are taken from the posts' featured images. In the event that a podcast does not have a featured image available, Message Flow will check the following locations for a suitable fallback image:
 
@@ -49,6 +52,40 @@ Extract the zip file and drop the contents in the wp-content/plugins/ directory 
 2. The Message Flow widget will be placed wherever you put the shortcode
 
 == Changelog ==
+
+= 1.1.7 =
+* Added excerpt_length and readmore_text parameters to shortcode
+
+= 1.1.6 =
+* Fixed undefined variable warning when WP_DEBUG is enabled
+
+= 1.1.5 =
+* Automatically truncate long posts so widget doesn't become too large
+* Added "show_excerpt" parameter
+* Fixed "Invalid argument supplied" warning
+
+= 1.1.4 =
+* Added support for regular posts that lack an associated podcast episode
+* Added "podcasts_only" parameter: `[message-flow podcasts_only="true"]`
+
+= 1.1.3 =
+* Fixed bug where post content would be inaccurate for some episodes within widget
+
+= 1.1.2 =
+* Fixed WP_DEBUG errors that appear when site has no podcast episodes
+
+= 1.1.1 =
+* Fixed WP_DEBUG errors
+* Added screenshots
+* Added more usage examples
+
+= 1.1 =
+* First public release
+
+== Upgrade Notice ==
+
+= 1.1.7 =
+* Added excerpt_length and readmore_text parameters to shortcode
 
 = 1.1.6 =
 * Fixed undefined variable warning when WP_DEBUG is enabled
